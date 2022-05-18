@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 
 const { readdirSync } = require('fs');
-const { displayReport, testReport } = require('./utility/testReport.js');
+const { displayReport, testReport } = require('./reporter.js');
 
 const tests = [];
 
@@ -70,6 +70,4 @@ const main = (testDir) => {
   displayReport(testReport(testResults));
 };
 
-const [, , testDir] = process.argv;
-
-main(testDir || 'test');
+main('test');
