@@ -1,18 +1,62 @@
 
 COFFEE_REPORTERS=~/.coffee/reporters
+COFFEE_REPORTER=$COFFEE_REPORTERS/reporter.js
+COFFEE=~/bin/coffee
 
-function create_coffee_dir() {
-  mkdir -p COFFEE_REPORTERS
-}
+COFFEE_REPORTERS_RELATIVE="../.coffee/reporters"
 
-function download_file() {
-  local file_location=$1
-  echo "Downloading..."
-  curl -# $file_location
+function create_coffee_setup() {
+  mkdir -p $COFFEE_REPORTERS
 }
 
 function store_reporter() {
   local reporter_location=$1
-  local reporter=$(download_file "$reporter_location")
-  echo "$reporter" > COFFEE_REPORTERS/reporter.js
+  echo "Downloading Reporter..."
+  curl -# -o "$COFFEE_REPORTER" "$reporter_location"
+  echo "Stored Reporter successfully"
 }
+
+function store_coffee() {
+  local coffee_location=$1
+  echo "Downloading Coffee file..."
+  curl -# -o $COFFEE "$coffee_location"
+  echo "Placed coffee in user bin successfully"
+}
+
+function make_coffee_exec() {
+  chmod +x $COFFEE
+}
+
+function reporter_path_export() {
+  echo "export COFFEE_REPORTERS=\"$COFFEE_REPORTERS_RELATIVE\""
+}
+
+function set_reporter_path() {
+  if [[ -f ~/.bashrc ]]; then
+    reporter_path_export >> ~/.bashrc
+  fi
+  if [[ -f ~/.zshrc ]]; then
+    reporter_path_export >> ~/.zshrc
+  fi
+}
+
+REPORTER_URL="https://raw.githubusercontent.com/nitinsharmacs/coffee/main/src/reporters/reporter.js"
+COFFEE_URL="https://raw.githubusercontent.com/nitinsharmacs/coffee/main/src/coffee.js"
+
+function main() {
+  if [[ ! -e $COFFEE_REPORTERS ]]; then
+    create_coffee_setup
+  fi
+  store_reporter "$REPORTER_URL"
+  store_coffee "$COFFEE_URL"
+
+  echo "Making coffee executable"
+  make_coffee_exec
+
+  echo "Setting up the reporter path"
+  set_reporter_path
+  echo "Installed successfully"
+  echo "Happy testing :)"
+}
+
+main
