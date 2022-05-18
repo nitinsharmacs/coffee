@@ -1,7 +1,6 @@
 #! /usr/bin/env node
 
-const PWD = process.env.PWD;
-const COFFEE_REPORTERS = process.env.COFFEE_REPORTERS;
+const { PWD, COFFEE_REPORTERS } = process.env;
 
 const { readdirSync } = require('fs');
 const {
