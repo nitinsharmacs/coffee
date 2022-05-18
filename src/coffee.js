@@ -11,12 +11,16 @@ const {
 
 const tests = [];
 
-suite = function (suiteName, ...testCases) {
-  tests.push({ suite: suiteName, testCases });
+makeTest = function (description, testFunction) {
+  return this.testCases.push({ description, testFunction });
 };
 
-makeTest = (description, testFunction) => {
-  return { description, testFunction };
+suite = function (suiteName, itRunner) {
+  return function () {
+    it = makeTest.bind(this);
+    itRunner();
+    tests.push(this);
+  }.call({ suite: suiteName, testCases: [] });
 };
 
 const runTestCase = function ({ testFunction, description }) {
