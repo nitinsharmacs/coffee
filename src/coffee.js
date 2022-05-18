@@ -1,7 +1,14 @@
 #! /usr/bin/env node
 
+const PWD = process.env.PWD;
+const COFFEE_REPORTERS = process.env.COFFEE_REPORTERS;
+
 const { readdirSync } = require('fs');
-const { displayReport, testReport } = require('./reporter.js');
+const {
+  displayReport,
+  testReport
+} = require(COFFEE_REPORTERS + '/reporter.js');
+
 
 const tests = [];
 
@@ -50,7 +57,7 @@ const getTestFiles = (path) => {
 
 const requireTestFiles = (testDir, fileNames) => {
   fileNames.forEach(fileName => {
-    require('./' + testDir + '/' + fileName);
+    require(PWD + '/' + testDir + '/' + fileName);
   });
 };
 
