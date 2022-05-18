@@ -49,12 +49,14 @@ const { strictEqual } = require('assert');
 
 suite(
   'add',
-  makeTest('should add two numbers', () => {
-    strictEqual(3 + 2, 3);
-  }),
-  makeTest('should add positve and negative numbers', () => {
-    strictEqual(-3 + 2, -1);
-  })
+  () => {
+    it('should add two numbers', () => {
+      strictEqual(3 + 2, 5);
+    });
+    it('should add positve and negative numbers', () => {
+      strictEqual(-3 + 2, -1);
+    });
+  }
 );
 ```
 `makeTest` is creates a test case for the suite `add`.
