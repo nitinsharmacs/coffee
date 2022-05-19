@@ -28,7 +28,7 @@ function make_coffee_exec() {
 }
 
 function reporter_path_export() {
-  echo "export COFFEE_REPORTERS=\"$COFFEE_REPORTERS_RELATIVE\""
+  echo -e "\nexport COFFEE_REPORTERS=\"$COFFEE_REPORTERS_RELATIVE\""
 }
 
 function set_reporter_path() {
