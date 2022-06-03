@@ -1,7 +1,8 @@
-// const { validateOption } = require('./validators.js');
+const { createParser } = require('./createParser.js');
+
 const { parseCombinedOption,
   parseNonCombinedOption,
-  parseStandAloneOption } = require('./utils/optionParsers.js');
+  parseStandAloneOption } = require('./optionParsers.js');
 
 
 const isCombinedOption = (text) => /^-[a-z][-+]?[a-z0-9]+$/.test(text);
@@ -78,4 +79,44 @@ const parserConfig = {
   validator: validateOption
 };
 
-exports.parserConfig = parserConfig;
+const compileWOption = (compiledOptions) => {
+  return {
+    ...compiledOptions,
+    watch: true
+  };
+};
+
+const hasKey = (obj, key) => {
+  const keys = Object.keys(obj);
+  return keys.includes(key);
+};
+
+const compileOptions = (options) => {
+  let compiledOptions = {
+    watch: false
+  };
+  const availableOptions = [
+    {
+      name: '-w',
+      compiler: compileWOption
+    }
+  ];
+
+  for (const option of availableOptions) {
+    if (hasKey(options, option.name)) {
+      compiledOptions = option.compiler(compiledOptions, options);
+    }
+  }
+  return compiledOptions;
+};
+
+const coffeeArgsParser = (args) => {
+  const parser = createParser(parserConfig);
+  const { filenames: suites, options } = parser(args);
+  return {
+    suites,
+    options: compileOptions(options)
+  };
+};
+
+exports.coffeeArgsParser = coffeeArgsParser;

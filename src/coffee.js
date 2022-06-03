@@ -1,14 +1,14 @@
 #! /usr/bin/env node
 
 const fs = require('fs');
-const { coffeeArgsParser } = require('./parser.js');
 const { EventEmitter } = require('events');
 
-const { PWD, COFFEE_REPORTERS } = process.env;
+const { PWD, COFFEE } = process.env;
 const {
   displayReport,
   testReport
-} = require(COFFEE_REPORTERS + '/reporter.js');
+} = require(`${COFFEE}/reporters/reporter.js`);
+const { coffeeArgsParser } = require(`${COFFEE}/utils/argsParser.js`);
 
 
 let TESTS = [];
