@@ -32,7 +32,7 @@ function store_parser() {
 
   echo "Downloading parsers..."
   local index=0
-  while [[ $index -le ${#parsers_location[@]} ]]; then
+  while [[ $index -le ${#parsers_location[@]} ]]; do
     curl -# -o $COFFEE "${parsers_location[$index]}"
     index=$(( index + 1 ))
   done
