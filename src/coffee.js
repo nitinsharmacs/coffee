@@ -1,15 +1,17 @@
 #! /usr/bin/env node
 
-const { PWD, COFFEE_REPORTERS } = process.env;
+const fs = require('fs');
+const { coffeeArgsParser } = require('./parser.js');
+const { EventEmitter } = require('events');
 
-const { readdirSync } = require('fs');
+const { PWD, COFFEE_REPORTERS } = process.env;
 const {
   displayReport,
   testReport
 } = require(COFFEE_REPORTERS + '/reporter.js');
 
 
-const tests = [];
+let TESTS = [];
 
 makeTest = function (description, testFunction) {
   return this.testCases.push({ description, testFunction });
@@ -19,7 +21,7 @@ suite = function (suiteName, itRunner) {
   return function () {
     it = makeTest.bind(this);
     itRunner();
-    tests.push(this);
+    TESTS.push(this);
   }.call({ suite: suiteName, testCases: [] });
 };
 
@@ -45,7 +47,7 @@ const runTest = ({ suite, testCases }) => {
 };
 
 const runTests = () => {
-  return tests.map(test => {
+  return TESTS.map(test => {
     return runTest(test);
   });
 };
@@ -55,7 +57,31 @@ const isTestFile = (fileName) => {
 };
 
 const getTestFiles = (path) => {
-  return readdirSync(path).filter(isTestFile);
+  return fs.readdirSync(path).filter(isTestFile);
+};
+
+const clearRequireCache = (path) => {
+  delete require.cache[path];
+};
+
+const isTestFilePath = (path) => {
+  const testFileRule = /.*\/test.*\.js$/;
+  return testFileRule.test(path);
+};
+
+const testFilePaths = () => {
+  const cachesPaths = Object.keys(require.cache);
+  return cachesPaths.filter(path => isTestFilePath(path));
+};
+
+const clearTestFileCaches = () => {
+  const paths = testFilePaths();
+  paths.forEach(path => clearRequireCache(path));
+};
+
+const clearTestsEnv = () => {
+  TESTS = [];
+  clearTestFileCaches();
 };
 
 const requireTestFiles = (testDir, fileNames) => {
@@ -71,13 +97,50 @@ const filterFiles = (testFiles, suites) => {
   return testFiles.filter(fileName => suites.includes(fileName));
 };
 
-const main = (testDir) => {
-  const [, , ...suites] = process.argv;
+const coffee = (testDir, suites) => {
   const testFiles = getTestFiles(testDir);
   const filteredFiles = filterFiles(testFiles, suites);
+
   requireTestFiles(testDir, filteredFiles);
+
   const testResults = runTests();
   displayReport(testReport(testResults));
+}
+
+const printWaitingMessage = () => {
+  console.log('\nCoffee waiting for changes ...\n');
 };
 
-main('test');
+const startWatcher = (target, eventEmitter) => {
+  let fileStat = { mtimeMs: 0 };
+
+  fs.watch(target, 'utf8', (eventType, filename) => {
+    const stat = fs.statSync(`${target}/${filename}`);
+
+    if (fileStat.mtimeMs < stat.mtimeMs) {
+      clearTestsEnv();
+      eventEmitter.emit(eventType);
+      fileStat = stat;
+      printWaitingMessage();
+    }
+  });
+};
+
+const main = (args) => {
+  const { suites, options } = coffeeArgsParser(args.slice(2));
+
+  const eventEmitter = new EventEmitter();
+  eventEmitter.on('change', () => coffee('test', suites));
+
+  if (!options.watch) {
+    eventEmitter.emit('change');
+    return;
+  }
+
+  eventEmitter.emit('change');
+  printWaitingMessage();
+
+  startWatcher('./test', eventEmitter);
+};
+
+main(process.argv);
