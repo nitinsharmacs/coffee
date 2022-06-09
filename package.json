@@ -1,0 +1,31 @@
+{
+  "name": "coffee",
+  "version": "1.0.0",
+  "description": "Coffee, javascript testing framework",
+  "main": "src/coffee.js",
+  "directories": {
+    "example": "examples",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nitinsharmacs/coffee.git"
+  },
+  "keywords": [
+    "testing",
+    "coffee",
+    "mocha",
+    "chai",
+    "suite",
+    "it"
+  ],
+  "author": "nitin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nitinsharmacs/coffee/issues"
+  },
+  "homepage": "https://github.com/nitinsharmacs/coffee#readme"
+}
